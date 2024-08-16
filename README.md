@@ -1,7 +1,9 @@
 This challenge consists of modifying the inflation model for Cosmos SDK.
 
-Test Assignment on Launching and Modifying the Inflation Model in Cosmos SDK completed by Mirvais Dyachok
+Test Assignment on Launching and Modifying the Inflation Model in Cosmos SDK completed by Mirvais Diachok
 =========================================================================================================
+
+Note: An HTML version of this README is included for better readability.
 
 1\. Set Up a Local Node of the Test Application from the Cosmos SDK Repository (SimApp).
 ----------------------------------------------------------------------------------------
