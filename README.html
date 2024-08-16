@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>This challenge consists of modifying the inflation model for Cosmos SDK.</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, 'Courier New', monospace;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Assignment on Launching and Modifying the Inflation Model in Cosmos SDK completed by Mirvais Dyachok</h1>
+
+    <h2>1. Set Up a Local Node of the Test Application from the Cosmos SDK Repository (SimApp).</h2>
+
+    <h3>Prerequisites:</h3>
+    <p>Since I had no machine on Linux and used Windows, I used <a href="https://cygwin.com" target="_blank">Cygwin</a> to properly build the project.</p>
+
+    <h3>Steps:</h3>
+
+    <h4>1. Create a key in a keyring:</h4>
+    <p>Follow the instructions <a href="https://docs.cosmos.network/v0.50/user/run-node/keyring" target="_blank">here</a>:</p>
+
+    <pre><code>./simd keys add my_validator --keyring-backend test
+# Store the generated address in a variable for later use.
+MY_VALIDATOR_ADDRESS=$(./simd keys show my_validator -a --keyring-backend test)
+    </code></pre>
+
+    <h4>2. Initialize a new chain before running a node:</h4>
+
+    <pre><code>./simd init first_test --chain-id my-test-chain
+{
+  "moniker": "first_test",
+  "chain_id": "my-test-chain",
+  "node_id": "6fca3e8a3657fde9b29092e79380ebd0d39dec86",
+  "gentxs_dir": "",
+  "app_message": {
+    "accounts": {
+      "account_number": "0",
+      "accounts": []
+    },
+    ...
+  }
+}
+    </code></pre>
+
+    <h4>3. Add stakes to the new account:</h4>
+
+    <pre><code>./simd genesis add-genesis-account $MY_VALIDATOR_ADDRESS 100000000000stake
+    </code></pre>
+
+    <h4>4. Add a validator to the existing chain:</h4>
+
+    <pre><code>./simd genesis gentx my_validator 100000000stake --chain-id my-test-chain --keyring-backend test
+# Genesis transaction written to "C:\Users\dabla\.simapp\config\gentx\gentx-6fca3e8a3657fde9b29092e79380ebd0d39dec86.json"
+    </code></pre>
+
+    <h4>5. Start a node:</h4>
+
+    <pre><code>./simd start
+    </code></pre>
+
+    <h2>2. Execute Transactions and Observe How Inflation Changes</h2>
+
+    <h3>Observing Inflation:</h3>
+    <p>Inflation changes even when the node is running without any additional transactions:</p>
+
+    <pre><code>dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130011044218594745"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130011722913598141"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130011784
+613143938"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130011805179659205"
+    </code></pre>
+
+    <h3>Creating a Second Account:</h3>
+
+    <h4>1. Create the account:</h4>
+
+    <pre><code>./simd keys add recipient --keyring-backend test
+
+# Store the generated address in a variable for later use.
+RECIPIENT=$(./simd keys show recipient -a --keyring-backend test)
+# Address: cosmos17wkuxnsgv2p0wvlqtqagpq0jh26n3wc6nhggq4
+    </code></pre>
+
+    <h4>2. Perform transactions and check inflation:</h4>
+    <pre><code>
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130020731047344871"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000stake --chain-id my-test-chain --keyring-backend test
+auth_info:
+  fee:
+    gas_limit: "200000"
+  body:
+    messages:
+    - "@type": "/cosmos.bank.v1beta1.MsgSend"
+      amount:
+      - amount: "1000000"
+        denom: stake
+      from_address: cosmos1ogtqxtv9amdfy5pneec0hx8x9y0uqrehpyxtjq
+      to_address: cosmos1jv57xdgjd5q1rj04ww55fhf43dlkess2zk
+    confirm transaction before signing and broadcasting [y/N]: y
+code: 0
+codespace: ""
+events: []
+gas_used: "0"
+gas_wanted: "0"
+logs: []
+raw_log: ""
+timestamp: ""
+tx: null
+txhash: ECD5B30465700872F2A0B6495AAB2ADFACEF17B0DD8CCF9DD996D126FD3CB
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.130021138510668952"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd tx bank send $MY_VALIDATOR_ADDRESS $RECIPIENT 1000000stake --chain-id my-test-chain --keyring-backend test
+auth_info:
+  fee:
+    gas_limit: "200000"
+  body:
+    messages:
+    - "@type": "/cosmos.bank.v1beta1.MsgSend"
+      amount:
+      - amount: "1000000"
+        denom: stake
+      from_address: cosmos1ogtqxtv9amdfy5pneec0hx8x9y0uqrehpyxtjq
+      to_address: cosmos1jv57xdgjd5q1rj04ww55fhf43dlkess2zk
+    confirm transaction before signing and broadcasting [y/N]: y
+code: 0
+codespace: ""
+events: []
+gas_used: "0"
+gas_wanted: "0"
+logs: []
+raw_log: ""
+timestamp: ""
+tx: null
+txhash: C65D445A2554493C34A60109B3F4C6D19FE2054A0F1CF516F76DFB07ED
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.13002155709706764"
+
+    </code></pre>
+    <h2>3. Experiment with the Minting Module</h2>
+
+    <h3>1. Static Inflation (not changing over time):</h3>
+    <p>To make inflation static, add a function to the mint package and use it in AddModule, for example:</p>
+
+    <pre><code>// StaticInflationRate returns the minimum inflation rate and keeps it static
+func (m Minter) StaticInflationRate(params Params, bondedRatio math.LegacyDec) math.LegacyDec {
+    return params.InflationMin
+}
+
+// StaticInflationCalculationFn is the function used to calculate static inflation.
+func StaticInflationCalculationFn(_ context.Context, minter Minter, params Params, bondedRatio math.LegacyDec) math.LegacyDec {
+    return minter.StaticInflationRate(params, bondedRatio)
+}
+    </code></pre>
+
+    <pre><code>mint.NewAppModule(appCodec, app.MintKeeper, app.AuthKeeper, minttypes.StaticInflationCalculationFns)
+    </code></pre>
+
+    <h3>2. Dynamic Inflation (changing based on arbitrary parameters):</h3>
+    <p>For this test, I removed the destination ratio, minimum, and maximum inflation to experiment with the inflation mechanism:</p>
+    <pre><code>
+        // CostumeInflationCalculationFn is the test function used to calculate inflation without usage of GoalBonded and inflation limits.
+        func CostumeInflationCalculationFn(_ context.Context, minter Minter, params Params, bondedRatio math.LegacyDec) math.LegacyDec {
+            return minter.CostumeInflationRate(params, bondedRatio)
+        }
+
+        // CostumeInflationRate is the costume way of returing the new inflation rate for the next block.
+        func (m Minter) CostumeInflationRate(params Params, bondedRatio math.LegacyDec) math.LegacyDec {
+	    // The target annual inflation rate is recalculated for each block. The inflation
+	    // is also subject to a rate change (positive or negative)
+	    inflationRateChangePerYear := math.LegacyOneDec().
+	    	Sub(bondedRatio).
+	    	Mul(params.InflationRateChange)
+	    inflationRateChange := inflationRateChangePerYear.Quo(math.LegacyNewDec(int64(params.BlocksPerYear)))
+        
+	    // adjust the new annual inflation for this next block
+	    inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
+	    return inflation
+            </code></pre>
+    <p>There is a inflation results example:</p>
+    <pre><code>dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000000000000000"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000041153319742"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000061729979613"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000082306639484"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000123459959228"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000555569816591"
+
+dabla@Milfais ~/cosmos-sdk/build
+$ ./simd query mint inflation
+inflation: "0.070000576146476468"
+    </code></pre>
+
+    <h3>Summary</h3>
+    <p> Inflation in the project is implemented through the `mint` package. When invoking the `mint` module, we can pass a custom inflation calculation function. By default, the project uses `DefaultInflationCalculationFn`, which in turn uses the `NextInflationRate` method. The principle of this method is to calculate the annual inflation using the formula `(1 - bondedRatio/GoalBonded) * InflationRateChange`. It then calculates the inflation rate change based on the `BlocksPerYear` parameter.
+        You can change the parameters for this function in the `genesis.json` file to achieve a static inflation rate or experiment with these parameters. Alternatively, you can add a custom function to the `mint` package for your own inflation calculation mechanism.
+        In my case, I decided not to use `GoalBonded` and removed the 7% and 20% inflation limits. This led to a slower increase in inflation at the beggining, but it's doesn't decrease as itgets closer to `GoalBonded`, unlike the standard mechanism.
+        </p>
+</body>
+</html>
